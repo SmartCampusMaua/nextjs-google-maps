@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { SensorMap } from "@/components/maps/SensorMap";
-import { fetchEnergySensors, fetchWaterSensors } from "@/lib/api";
+import { fetchEnergySensors, fetchRestaurants, fetchWaterSensors } from "@/lib/api";
 import type { SensorData } from "@smartcampus/types";
 
 export default async function MapsPage() {
@@ -8,12 +8,14 @@ export default async function MapsPage() {
 
   let energySensors: SensorData[] = [];
   let waterSensors: SensorData[] = [];
+  let restaurantSensors: SensorData[] = [];
   let error: string | null = null;
 
   try {
-    const [energyRes, waterRes] = await Promise.allSettled([
+    const [energyRes, waterRes, restaurantRes] = await Promise.allSettled([
       fetchEnergySensors(),
       fetchWaterSensors(),
+      fetchRestaurants()
     ]);
 
     if (energyRes.status === "fulfilled") {
@@ -22,10 +24,15 @@ export default async function MapsPage() {
     if (waterRes.status === "fulfilled") {
       waterSensors = waterRes.value.data;
     }
-
+    
+    if (restaurantRes.status === "fulfilled") {
+      restaurantSensors = restaurantRes.value.data;
+    }
+    
     if (
       energyRes.status === "rejected" &&
-      waterRes.status === "rejected"
+        waterRes.status === "rejected" &&
+      restaurantRes.status === "rejected"
     ) {
       error = "Could not connect to the sensor API. Showing map without data.";
     }
@@ -57,6 +64,10 @@ export default async function MapsPage() {
           <span>
             💧 {waterSensors.length} water sensor
             {waterSensors.length !== 1 ? "s" : ""}
+          </span>
+          <span>
+            🍴 {restaurantSensors.length} restaurant sensor
+            {restaurantSensors.length !== 1 ? "s" : ""}
           </span>
         </div>
       </header>
@@ -95,6 +106,7 @@ export default async function MapsPage() {
             apiKey={apiKey}
             energySensors={energySensors}
             waterSensors={waterSensors}
+            restaurantSensors={restaurantSensors}
           />
         )}
       </div>

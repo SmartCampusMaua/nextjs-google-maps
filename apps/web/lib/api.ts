@@ -21,3 +21,13 @@ export async function fetchWaterSensors(): Promise<SensorsResponse> {
   }
   return res.json() as Promise<SensorsResponse>;
 }
+
+export async function fetchRestaurants(): Promise<SensorsResponse> {
+  const res = await fetch(`${API_URL}/restaurant/sensors`, {
+    next: { revalidate: 30 },
+  });
+  if (!res.ok) {
+    throw new Error(`Failed to fetch restaurants: ${res.statusText}`);
+  }
+  return res.json() as Promise<SensorsResponse>;
+}

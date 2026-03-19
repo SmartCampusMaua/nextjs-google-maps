@@ -15,6 +15,7 @@ import { SensorInfoWindow } from "./SensorInfoWindow";
 interface SensorMapProps {
   energySensors: SensorData[];
   waterSensors: SensorData[];
+  restaurantSensors : SensorData[];
   apiKey: string;
 }
 
@@ -35,11 +36,19 @@ const DEFAULT_LAYERS: MapLayer[] = [
     visible: true,
     color: "#3B82F6",
   },
+  {
+    id: "restaurant",
+    name: "Restaurant Sensors",
+    type: "restaurant",
+    visible: true,
+    color: "#88e788",
+  }
 ];
 
 export function SensorMap({
   energySensors,
   waterSensors,
+  restaurantSensors,
   apiKey,
 }: SensorMapProps) {
   const [layers, setLayers] = useState<MapLayer[]>(DEFAULT_LAYERS);
@@ -55,6 +64,7 @@ export function SensorMap({
 
   const energyVisible = layers.find((l) => l.id === "energy")?.visible ?? true;
   const waterVisible = layers.find((l) => l.id === "water")?.visible ?? true;
+  const restaurantVisible = layers.find((l) => l.id === "restaurant")?.visible ?? true;
 
   return (
     <APIProvider apiKey={apiKey}>
@@ -108,6 +118,28 @@ export function SensorMap({
                   borderColor="#2563EB"
                   glyphColor="#ffffff"
                   glyph="💧"
+                  scale={1.2}
+                />
+              </AdvancedMarker>
+            ))}
+
+          {/* Restaurant sensor markers */}
+          {restaurantVisible &&
+            restaurantSensors.map((data) => (
+              <AdvancedMarker
+                key={data.sensor.id}
+                position={{
+                  lat: data.sensor.latitude,
+                  lng: data.sensor.longitude,
+                }}
+                onClick={() => setSelectedSensor(data)}
+                title={data.sensor.name}
+              >
+                <Pin
+                  background="#88e788"
+                  borderColor="#2563EB"
+                  glyphColor="#88e788"
+                  glyph="🍴"
                   scale={1.2}
                 />
               </AdvancedMarker>
