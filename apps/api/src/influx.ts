@@ -1,10 +1,12 @@
 import { InfluxDBClient, Point } from "@influxdata/influxdb3-client";
+import { SensorType } from "@smartcampus/types";
 
 const url = process.env.INFLUXDB_URL ?? "http://localhost:8086";
 const token = process.env.INFLUXDB_TOKEN ?? "";
 const database = process.env.INFLUXDB_DATABASE ?? "smartcampus";
 
 let client: InfluxDBClient | null = null;
+
 
 export function getInfluxClient(): InfluxDBClient {
   if (!client) {
@@ -13,7 +15,7 @@ export function getInfluxClient(): InfluxDBClient {
   return client;
 }
 
-export async function querySensors(measurement: string, limit = 100) {
+export async function querySensors(measurement: SensorType, limit = 100) {
   const influx = getInfluxClient();
   const query = `
     SELECT *

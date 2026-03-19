@@ -1,4 +1,4 @@
-export type SensorType = "energy" | "water";
+export type SensorType = "energy" | "water" | "restaurant";
 
 export interface SensorLocation {
   id: string;
