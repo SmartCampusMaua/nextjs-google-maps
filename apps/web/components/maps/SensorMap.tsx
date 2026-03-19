@@ -55,7 +55,7 @@ export function SensorMap({
   const [selectedSensor, setSelectedSensor] = useState<SensorData | null>(
     null
   );
-
+  
   const toggleLayer = useCallback((layerId: string) => {
     setLayers((prev) =>
       prev.map((l) => (l.id === layerId ? { ...l, visible: !l.visible } : l))
@@ -66,6 +66,8 @@ export function SensorMap({
   const waterVisible = layers.find((l) => l.id === "water")?.visible ?? true;
   const restaurantVisible = layers.find((l) => l.id === "restaurant")?.visible ?? true;
 
+  const sensors = energySensors.concat(waterSensors, restaurantSensors);
+  
   return (
     <APIProvider apiKey={apiKey}>
       <div className="relative w-full h-full">
@@ -156,8 +158,9 @@ export function SensorMap({
               headerDisabled
             >
               <SensorInfoWindow
-                sensor={selectedSensor}
+                pressedSensor={selectedSensor}
                 onClose={() => setSelectedSensor(null)}
+                sensors={sensors}
               />
             </InfoWindow>
           )}

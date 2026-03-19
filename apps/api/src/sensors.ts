@@ -44,7 +44,56 @@ export const sensorLocations: SensorLocation[] = [
     latitude: -23.648092071563553,
     longitude: -46.574687940662365,
     type: "restaurant",
-  }
+  },
+  { 
+    id: "water-001",
+    name: "Caixa d'água Bombeiros",
+    latitude: -23.64783508471281, 
+    longitude : -46.57322304699091,
+    type: "water"
+  },
+  {
+    id: "water-002",
+    name: "Caixa d'água Consumo",
+    latitude: -23.64783508471281, 
+    longitude : -46.57322304699091,
+    type: "water"
+  },
+  {
+    id: "water-003",
+    name: "Caixa d'água Reserva",
+    latitude: -23.64783508471281, 
+    longitude : -46.57322304699091,
+    type: "water"
+  },
+  {
+    id: "water-004",
+    name: "Caixa d'água Cisterna",
+    latitude: -23.64783508471281, 
+    longitude : -46.57322304699091,
+    type: "water"
+  },
+  {
+    id: "water-005",
+    name: "Caixa d'água Bloco H",
+    latitude: -23.648500924327955,
+    longitude : -46.57451318944901,
+    type: "water"
+  },
+  { 
+    id: "water-006",
+    name: "Caixa d'água Bloco J",
+    latitude: -23.646754009486493,
+    longitude : -46.573442988091635,
+    type: "water"
+  },
+  {
+    id: "water-007",
+    name: "Caixa d'água Banco S",
+    latitude: -23.649573637073875, 
+    longitude : -46.57436639498939,
+    type: "water"
+  },
 ];
 
 export function getSensorsByType(type: SensorType): SensorLocation[] {
