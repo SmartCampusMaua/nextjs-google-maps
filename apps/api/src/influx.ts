@@ -36,6 +36,7 @@ export async function querySensors(measurement: SensorType, limit = 100, device_
     AND device_id = '${device_id}'
     ORDER BY time DESC
     LIMIT ${limit}
+    
 `;
   }
   
@@ -59,10 +60,19 @@ export async function queryLatestSensorReadings(measurement: string, device_id :
     ORDER BY device_id, time DESC
   `;
   }
-  else{
+  else if(measurement == "water_tank"){
     query = `
     SELECT DISTINCT ON (device_id) *
     FROM milesight_em500_swl
+    WHERE time >= now() - interval '2 days'
+    AND device_id = '${device_id}'
+    ORDER BY device_id, time DESC
+  `;
+  }
+  else{
+    query = `
+    SELECT DISTINCT ON (device_id) *
+    FROM milesight_em300_di
     WHERE time >= now() - interval '2 days'
     AND device_id = '${device_id}'
     ORDER BY device_id, time DESC

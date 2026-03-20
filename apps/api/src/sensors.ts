@@ -46,49 +46,49 @@ export const sensorLocations: SensorLocation[] = [
     type: "restaurant",
   },
   { 
-    id: "water-001",
+    id: "019be6eb-b5bc-7cb8-9ed1-1467f311ebf8",
     name: "Caixa d'água Bombeiros",
     latitude: -23.64783508471281, 
     longitude : -46.57322304699091,
     type: "water"
   },
   {
-    id: "water-002",
+    id: "019be6eb-b5bc-7904-a84c-3bd0d9e304c7",
     name: "Caixa d'água Consumo",
     latitude: -23.64783508471281, 
     longitude : -46.57322304699091,
     type: "water"
   },
   {
-    id: "water-003",
+    id: "019be6eb-b5bc-75fb-8688-0cf22c21eb49",
     name: "Caixa d'água Reserva",
     latitude: -23.64783508471281, 
     longitude : -46.57322304699091,
     type: "water"
   },
   {
-    id: "water-004",
+    id: "019b9ae2-fc84-7396-9ea8-fd2a041b7664",
     name: "Caixa d'água Cisterna",
     latitude: -23.64783508471281, 
     longitude : -46.57322304699091,
     type: "water"
   },
   {
-    id: "water-005",
+    id: "019be6eb-b5bb-7fbf-ba3b-3101febc1129",
     name: "Caixa d'água Bloco H",
     latitude: -23.648500924327955,
     longitude : -46.57451318944901,
     type: "water"
   },
   { 
-    id: "water-006",
+    id: "019be6eb-b5bc-7669-af5c-488132dceadb",
     name: "Caixa d'água Bloco J",
     latitude: -23.646754009486493,
     longitude : -46.573442988091635,
     type: "water"
   },
   {
-    id: "water-007",
+    id: "019be6eb-b5bc-77de-b058-9d4a78419e1a",
     name: "Caixa d'água Banco S",
     latitude: -23.649573637073875, 
     longitude : -46.57436639498939,
