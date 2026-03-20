@@ -15,15 +15,30 @@ export function getInfluxClient(): InfluxDBClient {
   return client;
 }
 
-export async function querySensors(measurement: SensorType, limit = 100) {
+export async function querySensors(measurement: SensorType, limit = 100, device_id : string) {
   const influx = getInfluxClient();
-  const query = `
+  let query;
+  if(measurement == "energy" || measurement == "restaurant"){
+    query = `
     SELECT *
-    FROM "${measurement}"
+    FROM kron_ks3000
+    WHERE time >= now() - interval '2 days'
+    AND device_id = '${device_id}'
     ORDER BY time DESC
     LIMIT ${limit}
   `;
-
+  }
+  else{
+    query = `
+    SELECT *
+    FROM milesight_em500_swl
+    WHERE time >= now() - interval '2 days'
+    AND device_id = '${device_id}'
+    ORDER BY time DESC
+    LIMIT ${limit}
+`;
+  }
+  
   const rows: Record<string, unknown>[] = [];
   const result = await influx.query(query, database);
   for await (const row of result) {
@@ -32,18 +47,34 @@ export async function querySensors(measurement: SensorType, limit = 100) {
   return rows;
 }
 
-export async function queryLatestSensorReadings(measurement: string) {
+export async function queryLatestSensorReadings(measurement: string, device_id : string) {
   const influx = getInfluxClient();
-  const query = `
-    SELECT DISTINCT ON (sensor_id) *
-    FROM "${measurement}"
-    ORDER BY sensor_id, time DESC
+  let query;
+  if(measurement == "energy" || measurement == "restaurant"){
+    query = `
+    SELECT DISTINCT ON (device_id) *
+    FROM kron_ks3000
+    WHERE time >= now() - interval '2 days'
+    AND device_id = '${device_id}'
+    ORDER BY device_id, time DESC
   `;
+  }
+  else{
+    query = `
+    SELECT DISTINCT ON (device_id) *
+    FROM milesight_em500_swl
+    WHERE time >= now() - interval '2 days'
+    AND device_id = '${device_id}'
+    ORDER BY device_id, time DESC
+  `;
+  }
+
 
   const rows: Record<string, unknown>[] = [];
   const result = await influx.query(query, database);
   for await (const row of result) {
     rows.push(row);
   }
+  console.log(rows);
   return rows;
 }

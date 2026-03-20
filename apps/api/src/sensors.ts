@@ -6,7 +6,7 @@ import type { SensorLocation, SensorType } from "@smartcampus/types";
  */
 export const sensorLocations: SensorLocation[] = [
   {
-    id: "restaurant-001",
+    id: "019b08df-26e7-7506-a5f6-916b2bef24f4",
     name: "Restaurante Bloco V",
     description: "",
     latitude: -23.64819564988993,
@@ -14,7 +14,7 @@ export const sensorLocations: SensorLocation[] = [
     type: "restaurant",
   },
   {
-    id: "restaurant-002",
+    id: "019b08df-26e7-71b5-8df6-56c2e954ac91",
     name: "Restaurante Bloco N",
     description: "",
     latitude: -23.649511316153184,
@@ -22,7 +22,7 @@ export const sensorLocations: SensorLocation[] = [
     type: "restaurant",
   },
   {
-    id: "restaurant-003",
+    id: "019b08df-26e7-7119-97da-523f9236db80",
     name: "Restaurante Bloco Ginásio",
     description: "",
     latitude: -23.64707650417544,
@@ -30,7 +30,7 @@ export const sensorLocations: SensorLocation[] = [
     type: "restaurant",
   },
   {
-    id: "restaurant-004",
+    id: "019b08df-26e7-7f7b-a18f-b3d6c3fdf248",
     name: "Restaurante Quiosque",
     description: "",
     latitude: -23.648892753482794,
@@ -38,7 +38,7 @@ export const sensorLocations: SensorLocation[] = [
     type: "restaurant",
   },
   {
-    id: "restaurant-005",
+    id: "019b08df-26e7-7866-a0fb-1768122b8584",
     name: "Restaurante Açaí",
     description: "",
     latitude: -23.648092071563553,

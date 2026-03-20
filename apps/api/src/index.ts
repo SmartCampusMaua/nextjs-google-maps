@@ -1,10 +1,12 @@
 import { Elysia } from "elysia";
 import { energyRoutes, restaurantRoutes, waterRoutes } from "./routes";
-import {openapi} from "@elysiajs/openapi"
+import {openapi} from "@elysiajs/openapi";
+import {cors} from "@elysiajs/cors";
 
 const port = Number(process.env.PORT ?? 3001);
 
 const app = new Elysia()
+  .use(cors())
   .use(openapi())
   .get("/", () => ({
     name: "SmartCampusMaua API",

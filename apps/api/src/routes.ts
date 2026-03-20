@@ -10,15 +10,9 @@ const energyRoutes = new Elysia({ prefix: "/energy" })
             const sensors = getSensorsByType("energy");
             let rows: Record<string, unknown>[] = [];
 
-            try {
-                rows = await queryLatestSensorReadings("energy");
-            } catch {
-                // Return sensor locations even if InfluxDB is unavailable
-            }
-
             const data: SensorData[] = sensors.map((sensor) => {
                 const reading = rows.find(
-                    (r) => String(r["sensor_id"]) === sensor.id
+                    (r) => String(r["device_id"]) === sensor.id
                 );
                 return {
                     sensor,
@@ -26,8 +20,8 @@ const energyRoutes = new Elysia({ prefix: "/energy" })
                         ? {
                             sensorId: sensor.id,
                             timestamp: String(reading["time"]),
-                            value: Number(reading["value"]),
-                            unit: String(reading["unit"] ?? "kWh"),
+                            value: Number(reading["a_plus"]),
+                            unit: String("kWh"),
                             type: "energy",
                         }
                         : undefined,
@@ -62,22 +56,21 @@ const energyRoutes = new Elysia({ prefix: "/energy" })
             let readings: Record<string, unknown>[] = [];
 
             try {
-                const rows = await querySensors("energy");
+              const rows = await querySensors("energy",1,params.id);
                 readings = rows.filter(
-                    (r) => String(r["sensor_id"]) === params.id
+                    (r) => String(r["device_id"]) === params.id
                 );
             } catch {
                 // Return empty readings if InfluxDB is unavailable
             }
 
             return {
-                sensor,
-                readings: readings.map((r) => ({
-                    sensorId: params.id,
-                    timestamp: String(r["time"]),
-                    value: Number(r["value"]),
-                    unit: String(r["unit"] ?? "kWh"),
-                    type: "energy" as const,
+              readings: readings.map((r) => ({
+                sensorId: params.id,
+                timestamp: String(r["time"]),
+                value: Number(r["a_plus"]),
+                unit: String("kWh"),
+                type: "energy" as const,
                 })),
             };
         },
@@ -98,15 +91,9 @@ const waterRoutes = new Elysia({ prefix: "/water" })
             const sensors = getSensorsByType("water");
             let rows: Record<string, unknown>[] = [];
 
-            try {
-                rows = await queryLatestSensorReadings("water");
-            } catch {
-                // Return sensor locations even if InfluxDB is unavailable
-            }
-
             const data: SensorData[] = sensors.map((sensor) => {
                 const reading = rows.find(
-                    (r) => String(r["sensor_id"]) === sensor.id
+                    (r) => String(r["device_id"]) === sensor.id
                 );
                 return {
                     sensor,
@@ -114,8 +101,8 @@ const waterRoutes = new Elysia({ prefix: "/water" })
                         ? {
                             sensorId: sensor.id,
                             timestamp: String(reading["time"]),
-                            value: Number(reading["value"]),
-                            unit: String(reading["unit"] ?? "L"),
+                            value: Number(reading["water_level"]),
+                            unit: String("m³"),
                             type: "water",
                         }
                         : undefined,
@@ -149,21 +136,20 @@ const waterRoutes = new Elysia({ prefix: "/water" })
             let readings: Record<string, unknown>[] = [];
 
             try {
-                const rows = await querySensors("water");
+              const rows = await querySensors("water", 1, params.id);
                 readings = rows.filter(
-                    (r) => String(r["sensor_id"]) === params.id
+                    (r) => String(r["device_id"]) === params.id
                 );
             } catch {
                 // Return empty readings if InfluxDB is unavailable
             }
 
             return {
-                sensor,
                 readings: readings.map((r) => ({
                     sensorId: params.id,
                     timestamp: String(r["time"]),
-                    value: Number(r["value"]),
-                    unit: String(r["unit"] ?? "L"),
+                    value: Number(r["water_level"]),
+                    unit: String("m³"),
                     type: "water" as const,
                 })),
             };
@@ -185,25 +171,19 @@ const restaurantRoutes = new Elysia({ prefix: "/restaurant" })
             const sensors = getSensorsByType("restaurant");
             let rows: Record<string, unknown>[] = [];
 
-            try {
-                rows = await queryLatestSensorReadings("restaurant");
-            } catch {
-                // Return sensor locations even if InfluxDB is unavailable
-            }
-
             const data: SensorData[] = sensors.map((sensor) => {
                 const reading = rows.find(
-                    (r) => String(r["sensor_id"]) === sensor.id
+                    (r) => String(r["device_id"]) === sensor.id
                 );
                 return {
                     sensor,
                     latestReading: reading
                         ? {
-                            sensorId: sensor.id,
-                            timestamp: String(reading["time"]),
-                            value: Number(reading["value"]),
-                            unit: String(reading["unit"] ?? ""),
-                            type: "restaurant",
+                          sensorId: sensor.id,
+                          timestamp: String(reading["time"]),
+                          value: Number(reading["a_plus"]),
+                          unit: String("kWh"),
+                          type: "restaurant",
                         }
                         : undefined,
                 };
@@ -236,21 +216,19 @@ const restaurantRoutes = new Elysia({ prefix: "/restaurant" })
             let readings: Record<string, unknown>[] = [];
 
             try {
-                const rows = await querySensors("restaurant");
+              const rows = await querySensors("restaurant", 1, params.id);
                 readings = rows.filter(
-                    (r) => String(r["sensor_id"]) === params.id
+                    (r) => String(r["device_id"]) === params.id
                 );
-            } catch {
-                // Return empty readings if InfluxDB is unavailable
+            } catch (e){
             }
 
             return {
-                sensor,
                 readings: readings.map((r) => ({
                     sensorId: params.id,
                     timestamp: String(r["time"]),
-                    value: Number(r["value"]),
-                    unit: String(r["unit"] ?? "L"),
+                    value: Number(r["a_plus"]),
+                    unit: String("kWh"),
                     type: "restaurant" as const,
                 })),
             };

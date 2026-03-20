@@ -25,6 +25,10 @@ export interface SensorData {
   readings?: SensorReading[];
 }
 
+export interface SensorReadings{
+  readings: SensorReading[];
+}
+
 export interface SensorsResponse {
   data: SensorData[];
   type: SensorType;

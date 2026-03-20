@@ -1,6 +1,8 @@
 "use client";
 
-import type { SensorData, SensorType } from "@smartcampus/types";
+import { getLatestSensorReading } from "@/lib/api";
+import type { SensorData, SensorReading, SensorReadings, SensorType } from "@smartcampus/types";
+import { useEffect, useState } from "react";
 
 interface SensorInfoWindowProps {
     pressedSensor: SensorData;
@@ -15,16 +17,32 @@ const iconTypes = {
 };
 
 export function SensorInfoWindow({ pressedSensor, onClose, sensors }: SensorInfoWindowProps) {
-    const sensorsInSameLocation = sensors.filter((otherSensor) => {
-      return otherSensor.sensor.latitude == pressedSensor.sensor.latitude && otherSensor.sensor.longitude == pressedSensor.sensor.longitude;
-    });
+  const sensorsInSameLocation = sensors.filter((otherSensor) => {
+    return otherSensor.sensor.latitude == pressedSensor.sensor.latitude && otherSensor.sensor.longitude == pressedSensor.sensor.longitude;
+  });
+  let [latestReadings, setLatestReadings] = useState<SensorReadings| null>(null);
+  useEffect(() => {
+    let data : SensorReadings = {
+      readings : []
+    };
+    async function fetchData(){
+      for(let sensor of sensorsInSameLocation){
+        const { sensor: location } = sensor;
+        let temp = await getLatestSensorReading(location.id, location.type);
+        data.readings.push(temp.readings[0]);
+      };
+      setLatestReadings(data);
+    }
+    fetchData();
+  },[pressedSensor]);
     return (
         <div className="bg-white rounded-xl shadow-xl p-4 min-w-[220px] max-w-[280px]">
             {sensorsInSameLocation.map(
-                (sensor) => {
-                  const { sensor: location, latestReading } = sensor;
+              (sensor, index) => {
+                const { sensor: location } = sensor;
+                let latestReading = latestReadings?.readings[index];
                     return (
-                        <>
+                      <div key={index}>
                             <div className="flex items-start justify-between mb-2 mt-2">
                                 <span className="text-xl">{iconTypes[location.type]}</span>
                                 <button
@@ -52,21 +70,21 @@ export function SensorInfoWindow({ pressedSensor, onClose, sensors }: SensorInfo
                                     <div>
                                         <p className="text-xs text-gray-500 mb-1">Latest Reading</p>
                                         <p className="text-lg font-bold text-gray-900">
-                                            {latestReading.value.toFixed(2)}{" "}
-                                            <span className="text-sm font-normal text-gray-500">
-                                                {latestReading.unit}
-                                            </span>
+                                          {latestReading.value.toFixed(2)}{" "}
+                                          <span className="text-sm font-normal text-gray-500">
+                                            {latestReading.unit}
+                                          </span>
                                         </p>
-                                        <p className="text-xs text-gray-400 mt-1">
-                                            {new Date(latestReading.timestamp).toLocaleString()}
-                                        </p>
+                                      <p className="text-xs text-gray-400 mt-1">
+                                        {new Date(latestReading.timestamp).toString()}
+                                      </p>
                                     </div>
                                 ) : (
                                     <p className="text-xs text-gray-400 italic">No readings available</p>
                                 )}
                             </div>
                             <p className="text-xs text-gray-400 mt-2">ID: {location.id}</p>
-                        </>
+                        </div>
                     )
                 }
             )}
