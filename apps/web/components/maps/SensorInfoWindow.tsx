@@ -1,8 +1,32 @@
 "use client";
 
-import { getLatestSensorReading } from "@/lib/api";
+import { getSensorReadings } from "@/lib/api";
 import type { SensorData, SensorReading, SensorReadings, SensorType } from "@smartcampus/types";
 import { useEffect, useState } from "react";
+
+import { ChartContainer, type ChartConfig } from "@/components/ui/chart"
+import { Bar, CartesianGrid, Legend, Line, LineChart, XAxis, YAxis } from "recharts"
+
+type DataType = {
+  value : number,
+  timestamp : number
+}
+
+
+let chartConfig = {
+  energy: {
+    label : "Consumo energia (kWh)",
+    color : "#2563eb"
+  },
+  restaurant: {
+    label: "Consumo energia (m³)",
+    color: "#60a5fa"
+  },
+  water : {
+    label: "Altura da água (m)",
+    color: "#60a5fa"
+  }
+} satisfies ChartConfig
 
 interface SensorInfoWindowProps {
     pressedSensor: SensorData;
@@ -20,28 +44,38 @@ export function SensorInfoWindow({ pressedSensor, onClose, sensors }: SensorInfo
   const sensorsInSameLocation = sensors.filter((otherSensor) => {
     return otherSensor.sensor.latitude == pressedSensor.sensor.latitude && otherSensor.sensor.longitude == pressedSensor.sensor.longitude;
   });
-  let [latestReadings, setLatestReadings] = useState<SensorReadings| null>(null);
+  let [latestReadings, setLatestReadings] = useState<SensorReadings[]| null>(null);
+  
   useEffect(() => {
-    let data : SensorReadings = {
-      readings : []
-    };
-    async function fetchData(){
+    let data : SensorReadings[] = [];
+    async function fetchReadings(){
       for(let sensor of sensorsInSameLocation){
         const { sensor: location } = sensor;
-        let temp = await getLatestSensorReading(location.id, location.type);
-        data.readings.push(temp.readings[0]);
+        let temp = await getSensorReadings(location.id, location.type, 10);
+        data.push(temp);
       };
       setLatestReadings(data);
     }
-    fetchData();
+    fetchReadings();
   },[pressedSensor]);
     return (
         <div className="bg-white rounded-xl shadow-xl p-4 min-w-[220px] max-w-[280px]">
             {sensorsInSameLocation.map(
               (sensor, index) => {
                 const { sensor: location } = sensor;
-                let latestReading = latestReadings?.readings[index];
-                    return (
+                const readings = latestReadings?.at(index)?.readings;
+                console.log(readings);
+                const sensorReadings = readings?.filter((e) => e.sensorId == location.id);
+                let latestReading = sensorReadings?.at(-1);
+                const values = sensorReadings?.map((e) => e.value)!
+                const timestamps = sensorReadings?.map((e) => e.timestamp)!
+                const chartData : DataType[] = values?.map(
+                  ((value, i) => ({
+                    value: value,
+                    timestamp : timestamps[i]
+                  }))
+                );
+                return (
                       <div key={index}>
                             <div className="flex items-start justify-between mb-2 mt-2">
                                 <span className="text-xl">{iconTypes[location.type]}</span>
@@ -82,6 +116,29 @@ export function SensorInfoWindow({ pressedSensor, onClose, sensors }: SensorInfo
                                 ) : (
                                     <p className="text-xs text-gray-400 italic">No readings available</p>
                                 )}
+                              <ChartContainer config={
+                                {
+                                  value : {
+                                    label : chartConfig[location.type]["label"],
+                                    color : chartConfig[location.type]["color"],
+                                  }
+                                }
+                              } className="full min-h-max">
+                                <LineChart data={chartData}>
+                                  <CartesianGrid vertical={false} />
+                                  <XAxis
+                                    dataKey="timestamp"
+                                    tickLine={false}
+                                    tickMargin={10}
+                                    axisLine={false}
+                                  />
+                                  <YAxis width="auto" stroke="var(--color-text-3)" />
+                                  <Line
+                                    type="monotone"
+                                    dataKey="value"/>
+                                  <Legend/>
+                                </LineChart>
+                              </ChartContainer>
                             </div>
                             <p className="text-xs text-gray-400 mt-2">ID: {location.id}</p>
                         </div>

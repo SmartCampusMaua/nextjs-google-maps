@@ -13,7 +13,7 @@ export interface SensorLocation {
 
 export interface SensorReading {
   sensorId: string;
-  timestamp: string;
+  timestamp: number;
   value: number;
   unit: string;
   type: SensorType;
@@ -44,6 +44,7 @@ export interface WaterReading extends SensorReading {
   type: "water";
   unit: "L" | "m3" | "L/min";
 }
+
 
 export interface MapLayer {
   id: string;

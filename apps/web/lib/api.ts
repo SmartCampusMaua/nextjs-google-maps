@@ -32,8 +32,11 @@ export async function fetchRestaurants(): Promise<SensorsResponse> {
   return res.json() as Promise<SensorsResponse>;
 }
 
-export async function getLatestSensorReading(device_id : string, type : SensorType) : Promise<SensorReadings>{
-  const res = await fetch(`${API_URL}/${type}/sensors/${device_id}/readings`);
+export async function getSensorReadings(device_id : string, type : SensorType, limit: number = 1) : Promise<SensorReadings>{
+  const query = new URLSearchParams({
+    limit : `${limit}`
+  }).toString();
+  const res = await fetch(`${API_URL}/${type}/sensors/${device_id}/readings?${query}`, );
   if (!res.ok) {
     throw new Error(`Failed to get sensor Readings: ${res.statusText}`);
   }
