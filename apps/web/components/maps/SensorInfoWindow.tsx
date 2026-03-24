@@ -4,7 +4,7 @@ import { getSensorReadings } from "@/lib/api";
 import type { SensorData, SensorReading, SensorReadings, SensorType } from "@smartcampus/types";
 import { useEffect, useState } from "react";
 
-import { ChartContainer, ChartLegend, ChartLegendContent, type ChartConfig } from "@/components/ui/chart"
+import { ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart"
 import { Area, AreaChart, CartesianGrid, Label, Legend, Line, LineChart, XAxis, YAxis } from "recharts"
 
 type DataType = {
@@ -145,6 +145,12 @@ export function SensorInfoWindow({ pressedSensor, onClose, sensors }: SensorInfo
                                     type="monotone"
                                     dataKey="value"/>
                                   <ChartLegend content={<ChartLegendContent/>} />
+                                  
+                                  <ChartTooltip
+                                    cursor={false}
+                                    content={<ChartTooltipContent indicator="dot" hideLabel />}
+                                  />
+                                    
                                 </AreaChart>
                               </ChartContainer>
                             </div>
