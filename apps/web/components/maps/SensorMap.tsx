@@ -74,6 +74,7 @@ export function SensorMap({
         <LayerControl layers={layers} onToggle={toggleLayer} />
 
         <Map
+          mapTypeId={"satellite"}
           mapId="smartcampus-map"
           defaultCenter={CAMPUS_CENTER}
           defaultZoom={16}

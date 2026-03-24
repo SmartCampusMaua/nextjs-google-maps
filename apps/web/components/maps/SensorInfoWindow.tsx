@@ -4,14 +4,13 @@ import { getSensorReadings } from "@/lib/api";
 import type { SensorData, SensorReading, SensorReadings, SensorType } from "@smartcampus/types";
 import { useEffect, useState } from "react";
 
-import { ChartContainer, type ChartConfig } from "@/components/ui/chart"
-import { Bar, CartesianGrid, Legend, Line, LineChart, XAxis, YAxis } from "recharts"
+import { ChartContainer, ChartLegend, ChartLegendContent, type ChartConfig } from "@/components/ui/chart"
+import { Area, AreaChart, CartesianGrid, Label, Legend, Line, LineChart, XAxis, YAxis } from "recharts"
 
 type DataType = {
   value : number,
   timestamp : number
 }
-
 
 let chartConfig = {
   energy: {
@@ -19,7 +18,7 @@ let chartConfig = {
     color : "#2563eb"
   },
   restaurant: {
-    label: "Consumo energia (m³)",
+    label: "Consumo energia (kWh)",
     color: "#60a5fa"
   },
   water : {
@@ -59,16 +58,15 @@ export function SensorInfoWindow({ pressedSensor, onClose, sensors }: SensorInfo
     fetchReadings();
   },[pressedSensor]);
     return (
-        <div className="bg-white rounded-xl shadow-xl p-4 min-w-[220px] max-w-[280px]">
+        <div className="bg-white rounded-xl shadow-xl p-4 min-w-[220px] max-w-60%">
             {sensorsInSameLocation.map(
               (sensor, index) => {
                 const { sensor: location } = sensor;
                 const readings = latestReadings?.at(index)?.readings;
-                console.log(readings);
                 const sensorReadings = readings?.filter((e) => e.sensorId == location.id);
                 let latestReading = sensorReadings?.at(-1);
-                const values = sensorReadings?.map((e) => e.value)!
-                const timestamps = sensorReadings?.map((e) => e.timestamp)!
+                const values = sensorReadings?.map((e) => e.value)!.reverse()!
+                const timestamps = sensorReadings?.map((e) => e.timestamp)!.reverse()!
                 const chartData : DataType[] = values?.map(
                   ((value, i) => ({
                     value: value,
@@ -124,20 +122,30 @@ export function SensorInfoWindow({ pressedSensor, onClose, sensors }: SensorInfo
                                   }
                                 }
                               } className="full min-h-max">
-                                <LineChart data={chartData}>
+                                <AreaChart data={chartData}>
                                   <CartesianGrid vertical={false} />
                                   <XAxis
                                     dataKey="timestamp"
-                                    tickLine={false}
                                     tickMargin={10}
                                     axisLine={false}
+                                    tickFormatter={(value) => {
+                                      const date = new Date(value)
+                                      return date.toLocaleDateString("pt-BR", {
+                                        month: "short",
+                                        day: "numeric",
+                                        hour: "2-digit",
+                                        minute: "2-digit"
+                                      })
+                                    }}
                                   />
-                                  <YAxis width="auto" stroke="var(--color-text-3)" />
-                                  <Line
+                                  <YAxis width="auto" height="auto" niceTicks="snap125" unit={latestReading?.unit}>
+                                    <Label/>
+                                  </YAxis>
+                                  <Area
                                     type="monotone"
                                     dataKey="value"/>
-                                  <Legend/>
-                                </LineChart>
+                                  <ChartLegend content={<ChartLegendContent/>} />
+                                </AreaChart>
                               </ChartContainer>
                             </div>
                             <p className="text-xs text-gray-400 mt-2">ID: {location.id}</p>

@@ -25,7 +25,6 @@ export async function querySensors(measurement: SensorType, limit = 100, device_
     WHERE time >= now() - interval '2 days'
     AND device_id = '${device_id}'
     ORDER BY time DESC
-    LIMIT ${limit}
   `;
   }
   else{
@@ -34,9 +33,7 @@ export async function querySensors(measurement: SensorType, limit = 100, device_
     FROM milesight_em500_swl
     WHERE time >= now() - interval '2 days'
     AND device_id = '${device_id}'
-    ORDER BY time DESC
-    LIMIT ${limit}
-    
+    ORDER BY time DESC    
 `;
   }
   
