@@ -2,6 +2,7 @@ import { Elysia, t } from "elysia";
 import type { SensorData, SensorsResponse } from "@smartcampus/types";
 import { querySensors, queryLatestSensorReadings } from "./influx";
 import { sensorLocations, getSensorsByType, getSensorById } from "./sensors";
+import { createPDF } from "./generate_pdf";
 
 const energyRoutes = new Elysia({ prefix: "/energy" })
     .get(
@@ -240,4 +241,20 @@ const restaurantRoutes = new Elysia({ prefix: "/restaurant" })
         }
     )
 
-export { energyRoutes, waterRoutes, restaurantRoutes };
+const reportsRoutes = new Elysia({prefix: "/reports"})
+  .get(
+    "/:id/",
+    async ({params, query}) =>{
+      
+      await createPDF(params.id);
+    },
+    {
+      params: t.Object({ id: t.String() }),
+      detail: {
+        summary: "Get report from a restaurant",
+        tags: ["reports"],
+      },
+    }
+  )
+
+export { energyRoutes, waterRoutes, restaurantRoutes, reportsRoutes };

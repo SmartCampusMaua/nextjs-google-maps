@@ -15,6 +15,13 @@ export default function Home() {
           <span>View Sensor Map</span>
           <span>→</span>
         </Link>
+        <Link
+          href="/reports"
+          className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-3 text-white font-semibold hover:bg-blue-700 transition-colors ml-5"
+        >
+          <span>Ver relatórios</span>
+          <span>→</span>
+        </Link>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl w-full">
         <div className="rounded-xl border border-yellow-200 bg-yellow-50 p-6">

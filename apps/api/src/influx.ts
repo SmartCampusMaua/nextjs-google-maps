@@ -1,5 +1,5 @@
 import { InfluxDBClient, Point } from "@influxdata/influxdb3-client";
-import { SensorType } from "@smartcampus/types";
+import { EnergyReading, SensorType } from "@smartcampus/types";
 
 const url = process.env.INFLUXDB_URL ?? "http://localhost:8086";
 const token = process.env.INFLUXDB_TOKEN ?? "";
@@ -83,5 +83,36 @@ export async function queryLatestSensorReadings(measurement: string, device_id :
     rows.push(row);
   }
   console.log(rows);
+  return rows;
+}
+
+export async function queryRestaurantsPayment(device_id : string){
+  const influx = getInfluxClient();
+  let query = `
+  (SELECT a_plus, time, 1 as query_order
+  FROM kron_ks3000
+  WHERE device_id = '${device_id}'
+  AND time >= make_date(EXTRACT(YEAR FROM now()), EXTRACT(MONTH FROM now()), 1)::TIMESTAMP + interval '3h'
+  AND time <= make_date(EXTRACT(YEAR FROM now()), EXTRACT(MONTH FROM now()), 1)::TIMESTAMP + interval '3h 30 min' + interval '2 days'
+  ORDER BY time 
+  LIMIT 1
+  )
+  UNION ALL(
+  SELECT a_plus, time, 2 as query_order
+  FROM kron_ks3000
+  WHERE device_id = '${device_id}'
+  AND time <= now()
+  AND time >= now() - interval '2 days'
+  ORDER BY time DESC   
+  LIMIT 1
+  )
+  ORDER BY query_order
+  `;
+  
+  const rows: Record<string, number>[] = [];
+  const result = await influx.query(query, database);
+  for await (const row of result) {
+    rows.push(row);
+  }
   return rows;
 }

@@ -1,5 +1,5 @@
 import { Elysia } from "elysia";
-import { energyRoutes, restaurantRoutes, waterRoutes } from "./routes";
+import { energyRoutes, reportsRoutes, restaurantRoutes, waterRoutes } from "./routes";
 import {openapi} from "@elysiajs/openapi";
 import {cors} from "@elysiajs/cors";
 
@@ -11,12 +11,13 @@ const app = new Elysia()
   .get("/", () => ({
     name: "SmartCampusMaua API",
     version: "0.1.0",
-    docs: "/swagger",
+    docs: "/openapi",
   }))
   .get("/health", () => ({ status: "ok", timestamp: new Date().toISOString() }))
   .use(energyRoutes)
   .use(waterRoutes)
   .use(restaurantRoutes)
+  .use(reportsRoutes)
   .listen(port);
 
 console.log(
