@@ -11,13 +11,14 @@
     "lint": "tsc --noEmit"
   },
   "dependencies": {
-      "@elysiajs/cors": "^1.4.1",
-      "@elysiajs/openapi": "^1.4.14",
-      "@influxdata/influxdb3-client": "^1.0.0",
-      "elysia": "^1.3.2",
+    "@elysiajs/cors": "^1.4.1",
+    "@elysiajs/openapi": "^1.4.14",
+    "@influxdata/influxdb3-client": "^1.0.0",
+    "d3": "^7.9.0",
+    "elysia": "^1.3.2",
+    "jsdom": "^29.0.1",
       "pdf-lib": "^1.17.1",
       "@smartcampus/types": "workspace:*"
-
   },
   "devDependencies": {
     "@types/bun": "latest",
