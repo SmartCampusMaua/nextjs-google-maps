@@ -12,6 +12,7 @@ export const sensorLocations: SensorLocation[] = [
     latitude: -23.64819564988993,
     longitude:  -46.57441253916657,
     type: "restaurant",
+    displayColor: "#f2495c"
   },
   {
     id: "019b08df-26e7-71b5-8df6-56c2e954ac91",
@@ -20,6 +21,7 @@ export const sensorLocations: SensorLocation[] = [
     latitude: -23.649511316153184,
     longitude: -46.572751243805925,
     type: "restaurant",
+    displayColor: "#ff9830"
   },
   {
     id: "019b08df-26e7-7119-97da-523f9236db80",
@@ -28,6 +30,7 @@ export const sensorLocations: SensorLocation[] = [
     latitude: -23.64707650417544,
     longitude: -46.57305993118999,
     type: "restaurant",
+    displayColor: "#fade2a"
   },
   {
     id: "019b08df-26e7-7f7b-a18f-b3d6c3fdf248",
@@ -36,6 +39,7 @@ export const sensorLocations: SensorLocation[] = [
     latitude: -23.648892753482794,
     longitude:  -46.5728712161721,
     type: "restaurant",
+    displayColor: "#73bf69"
   },
   {
     id: "019b08df-26e7-7866-a0fb-1768122b8584",
@@ -44,6 +48,7 @@ export const sensorLocations: SensorLocation[] = [
     latitude: -23.648092071563553,
     longitude: -46.574687940662365,
     type: "restaurant",
+    displayColor: "#5794f2"
   },
   { 
     id: "019be6eb-b5bc-7cb8-9ed1-1467f311ebf8",

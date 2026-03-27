@@ -6,6 +6,9 @@ import {cors} from "@elysiajs/cors";
 const port = Number(process.env.PORT ?? 3001);
 
 const app = new Elysia()
+    .onError(({ code
+, error
+}) => console.log(error))
   .use(cors())
   .use(openapi())
   .get("/", () => ({

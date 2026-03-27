@@ -1,10 +1,13 @@
-import {PDFDocument, StandardFonts} from 'pdf-lib';
-import { queryRestaurantsPayment } from './influx';
+import {charSplit, PDFDocument, StandardFonts} from 'pdf-lib';
+import { queryRestaurantsConsumptionFromMonth, queryRestaurantsPayment } from './influx';
 import { sensorLocations } from './sensors';
+import * as d3 from 'd3';
+import {JSDOM} from 'jsdom';
+import sharp from 'sharp';
 
 const energyCost = 0.35;
 
-export async function createPDF(device_id : string) {
+export async function createPDF(device_id : string, date: Date) {
   const pdfDoc = await PDFDocument.create();
   const timesRomanFont = await pdfDoc.embedFont(StandardFonts.TimesRoman);
 
@@ -19,7 +22,10 @@ export async function createPDF(device_id : string) {
   const sensor = sensorLocations.find((e) => e.id == device_id);
   
 
-  const beginAndEndOfMonthEnergy = await queryRestaurantsPayment(device_id);
+  const [beginAndEndOfMonthEnergy, valuesFromMonth] = 
+  await Promise.all(
+    [queryRestaurantsPayment(device_id, date), queryRestaurantsConsumptionFromMonth(device_id, date)]
+  );
   const beginTime = beginAndEndOfMonthEnergy[0]["time"];
   const endTime   = beginAndEndOfMonthEnergy[1]["time"];
   const beginOfMonthEnergy : number = beginAndEndOfMonthEnergy[0]["a_plus"];
@@ -30,21 +36,117 @@ export async function createPDF(device_id : string) {
     currency: "BRL"
   }).format(monthEnergy * energyCost);
   page.moveDown(30);
+
+  const dateOptions : Intl.DateTimeFormatOptions= {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',    
+  };
+  
   const restaurantName = sensor?.name ?? "";
   page.drawText(`${title}\n
-  ${restaurantName}\n
-  ${totalCost}\n
-  ${new Date(beginTime).toString()}
-  ${new Date(endTime).toString()}
+  Comodato: ${restaurantName}\n
+  Data Início: ${new Date(beginTime).toLocaleString("pt-BR", dateOptions)}\n
+  Data Término: ${new Date(endTime).toLocaleString("pt-BR", dateOptions)}\n
+  Leitura Anterior: ${beginOfMonthEnergy} kWh\n
+  Leitura Atual: ${endOfMonthEnergy} kWh\n
+  Consumo: ${monthEnergy} kWh\n
+  Tarifa por kWh: ${new Intl.NumberFormat("pt-BR", {style: "currency", currency:"BRL"}).format(energyCost)}\n
+  Total a Pagar: ${totalCost}
 `, {
-    x: (width - textWidth )/ 2 ,
+    x: 0 ,
     y: height - 4 * fontSize,
     size: fontSize,
     font: timesRomanFont,
   });
  
+  const chartSVG = getChart(valuesFromMonth, device_id);  
+
+  const png = await sharp(Buffer.from(chartSVG))
+    .png()
+    .toBuffer();
+  const pngImage = await pdfDoc.embedPng(png);
+  // pdfImage.scale()
+  const pngDims = pngImage.scale(0.5)
+  page.drawImage(pngImage,{
+    x: 25,
+    y: 25,
+    height : pngDims.height,
+    width  : pngDims.width
+  });
   const pdfBytes = await pdfDoc.save();
   await Bun.write("report.pdf", pdfBytes);
 }
 
 
+function getChart(valuesFromMonth : [{a_plus : number, day : string}], device_id : string){
+  // Declare the chart dimensions and margins.
+  const dom = new JSDOM('<!DOCTYPE html><html><body><div id="chart"></div></body></html>');
+  const window = dom.window;
+  const document = window.document;
+
+  const width = 640;
+  const height = 400;
+  const marginTop = 20;
+  const marginRight = 20;
+  const marginBottom = 30;
+  const marginLeft = 40;
+
+
+  // Create the SVG container.
+  const svg = d3.select(document.body)
+    .append("svg")
+    .attr('xmlns', 'http://www.w3.org/2000/svg') // Important for valid SVG output
+    .attr("width", width)
+    .attr("height", height)
+    .attr("viewBox", [0, 0, width, height])
+    .attr("style", `max-width: ${width}px; height: auto; font: 10px sans-serif; overflow: visible;`);
+
+
+  const x = d3.scaleBand()
+    .domain(valuesFromMonth.map(d => d.day))
+    .range([marginLeft, width - marginRight])
+    .padding(0.1);
+
+  const xAxis = d3.axisBottom(x).tickSizeOuter(0);
+
+  // Declare the y (vertical position) scale.
+  const y = d3.scaleLinear()
+    .domain([0, d3.max(valuesFromMonth, d => d.a_plus)]).nice()
+    .range([height - marginBottom, marginTop]);
+
+  // Create a bar for each letter.
+  const bar = svg.append("g")
+    .attr("fill", sensorLocations.find((e) => e.id == device_id)?.displayColor)
+    .selectAll("rect")
+    .data(valuesFromMonth)
+    .join("rect")
+      .style("mix-blend-mode", "multiply") // Darker color when bars overlap during the transition.
+      .attr("x", d => x(d.day))
+      .attr("y", d => y(d.a_plus))
+      .attr("height", d => y(0) - y(d.a_plus))
+      .attr("width", x.bandwidth());
+
+  // Create the axes.
+  const gx = svg.append("g")
+    .attr("transform", `translate(0,${height - marginBottom})`)
+    .call(xAxis);
+  
+  const gy = svg.append("g")
+    .attr("transform", `translate(${marginLeft},0)`)
+    .call(
+      d3.axisLeft(y)
+      .tickFormat((y) => (y).toFixed()))
+    .call(g => g.select(".domain").remove());
+
+
+
+
+  // 4. Output the generated HTML/SVG string
+  const svgOutput = svg.node();
+  return svgOutput.outerHTML;
+
+}

@@ -246,10 +246,11 @@ const reportsRoutes = new Elysia({prefix: "/reports"})
     "/:id/",
     async ({params, query}) =>{
       
-      await createPDF(params.id);
+      await createPDF(params.id, query.date ?? new Date());
     },
     {
       params: t.Object({ id: t.String() }),
+      query : t.Object({ date: t.Optional(t.Date())}),
       detail: {
         summary: "Get report from a restaurant",
         tags: ["reports"],

@@ -86,15 +86,15 @@ export async function queryLatestSensorReadings(measurement: string, device_id :
   return rows;
 }
 
-export async function queryRestaurantsPayment(device_id : string){
+export async function queryRestaurantsPayment(device_id : string, date : Date){
   const influx = getInfluxClient();
   let query = `
   (SELECT a_plus, time, 1 as query_order
   FROM kron_ks3000
   WHERE device_id = '${device_id}'
-  AND time >= make_date(EXTRACT(YEAR FROM now()), EXTRACT(MONTH FROM now()), 1)::TIMESTAMP + interval '3h'
-  AND time <= make_date(EXTRACT(YEAR FROM now()), EXTRACT(MONTH FROM now()), 1)::TIMESTAMP + interval '3h 30 min' + interval '2 days'
-  ORDER BY time 
+  AND time >= make_date(${date.getFullYear()},${date.getMonth() + 1}, 1)::TIMESTAMP + interval '3h' - interval '1 day'
+  AND time < make_date(${date.getFullYear()},${date.getMonth() + 1}, 1)::TIMESTAMP + interval '3h'
+  ORDER BY time DESC
   LIMIT 1
   )
   UNION ALL(
@@ -103,6 +103,14 @@ export async function queryRestaurantsPayment(device_id : string){
   WHERE device_id = '${device_id}'
   AND time <= now()
   AND time >= now() - interval '2 days'
+  ORDER BY time DESC   
+  LIMIT 1
+  ) UNION ALL (
+  SELECT a_plus, time, 3 as query_order
+  FROM kron_ks3000
+  WHERE device_id = '${device_id}'
+  AND time >= make_date(${date.getFullYear()},${date.getMonth() + 1}, 1) + interval '3h' + interval '1 month' - interval '1 day'
+  AND time < make_date(${date.getFullYear()},${date.getMonth() + 1}, 1) + interval '3h' + interval '1 month'
   ORDER BY time DESC   
   LIMIT 1
   )
@@ -114,5 +122,45 @@ export async function queryRestaurantsPayment(device_id : string){
   for await (const row of result) {
     rows.push(row);
   }
+  if(rows.length == 3){
+    return [rows[0], rows[2]]
+  }
+  return [rows[0], rows[1]]
+}
+
+export async function queryRestaurantsConsumptionFromMonth(device_id : string, date : Date){
+  const influx = getInfluxClient();
+
+  let query = `(
+  SELECT max(a_plus) - min(a_plus) as a_plus, '01' as day
+  FROM kron_ks3000
+  WHERE time >= make_date(${date.getFullYear()},${date.getMonth() + 1}, 1)::TIMESTAMP + interval '3h'
+  AND time <= make_date(${date.getFullYear()},${date.getMonth() + 1}, 1)::TIMESTAMP + interval '3h' + interval '1 day'
+  AND device_id = '${device_id}'
+  GROUP BY device_id
+  )
+`;
+  const days = [...Array(30).keys()];
+  for(let day in days){
+    query += ` UNION ALL
+    (
+    SELECT max(a_plus) - min(a_plus) as a_plus, '${String(Number(day) + 2).padStart(2, '0')}' as day
+    FROM kron_ks3000
+    WHERE time >= make_date(${date.getFullYear()},${date.getMonth() + 1}, ${Number(day) + 2})::TIMESTAMP + interval '3h'
+    AND time <= make_date(${date.getFullYear()},${date.getMonth() + 1}, ${Number(day) + 2})::TIMESTAMP + interval '3h' + interval '1 day'
+    AND device_id = '${device_id}'
+    GROUP BY device_id
+    )
+`
+  }
+  query += `
+  ORDER BY day
+`;
+  const rows: Record<string, {a_plus: number, day : string}>[] = [];
+  const result = await influx.query(query, database);
+  for await (const row of result) {
+    rows.push(row);
+  }
   return rows;
+
 }

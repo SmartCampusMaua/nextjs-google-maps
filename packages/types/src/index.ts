@@ -9,6 +9,7 @@ export interface SensorLocation {
   type: SensorType;
   building?: string;
   floor?: string;
+  displayColor?: string;
 }
 
 export interface SensorReading {
