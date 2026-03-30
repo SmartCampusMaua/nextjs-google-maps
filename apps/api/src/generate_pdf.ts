@@ -47,13 +47,20 @@ export async function createPDF(device_id : string, date: Date) {
   };
   
   const restaurantName = sensor?.name ?? "";
-  page.drawText(`${title}\n
+  page.drawText(`${title}`,{
+    x: (width - textWidth) / 2,
+    y: height - 4 * fontSize,
+    size: fontSize * 1.2,
+    font: timesRomanFont,
+  });
+  page.moveDown(10);
+  page.drawText(`\n
   Comodato: ${restaurantName}\n
   Data Início: ${new Date(beginTime).toLocaleString("pt-BR", dateOptions)}\n
   Data Término: ${new Date(endTime).toLocaleString("pt-BR", dateOptions)}\n
   Leitura Anterior: ${beginOfMonthEnergy} kWh\n
   Leitura Atual: ${endOfMonthEnergy} kWh\n
-  Consumo: ${monthEnergy} kWh\n
+  Consumo: ${monthEnergy.toFixed(2)} kWh\n
   Tarifa por kWh: ${new Intl.NumberFormat("pt-BR", {style: "currency", currency:"BRL"}).format(energyCost)}\n
   Total a Pagar: ${totalCost}
 `, {
@@ -72,13 +79,13 @@ export async function createPDF(device_id : string, date: Date) {
   // pdfImage.scale()
   const pngDims = pngImage.scale(0.5)
   page.drawImage(pngImage,{
-    x: 25,
-    y: 25,
+    x: (width - pngDims.width) / 2,
+    y: (pngDims.height) / 2,
     height : pngDims.height,
     width  : pngDims.width
   });
   const pdfBytes = await pdfDoc.save();
-  await Bun.write("report.pdf", pdfBytes);
+  return pdfBytes;
 }
 
 
@@ -105,6 +112,13 @@ function getChart(valuesFromMonth : [{a_plus : number, day : string}], device_id
     .attr("viewBox", [0, 0, width, height])
     .attr("style", `max-width: ${width}px; height: auto; font: 10px sans-serif; overflow: visible;`);
 
+
+  svg.append("text")
+    .attr("text-anchor", "middle")
+    .attr("x", width / 2)
+    .attr("y", 20)
+    .attr("style", "font: 20px sans-serif")
+    .text("Consumo durante o Mês");
 
   const x = d3.scaleBand()
     .domain(valuesFromMonth.map(d => d.day))
@@ -141,7 +155,6 @@ function getChart(valuesFromMonth : [{a_plus : number, day : string}], device_id
       d3.axisLeft(y)
       .tickFormat((y) => (y).toFixed()))
     .call(g => g.select(".domain").remove());
-
 
 
 
