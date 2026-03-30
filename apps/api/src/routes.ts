@@ -246,7 +246,8 @@ const reportsRoutes = new Elysia({prefix: "/reports"})
     "/:id/",
     async ({params, query}) =>{
       
-      await createPDF(params.id, query.date ?? new Date());
+      const pdfFile = (await createPDF(params.id, query.date ?? new Date()));
+      return new Blob([new Uint8Array(pdfFile)], {type: "application/pdf"});
     },
     {
       params: t.Object({ id: t.String() }),

@@ -1,15 +1,18 @@
-"use client"
-import dynamic from 'next/dynamic';
+import { fetchRestaurants } from "@/lib/api";
+import PDFGenerator from "./components/PDFGenerator";
 
-const PDFGenerator = dynamic(() => import('./components/PDFGenerator'),{
-  loading: () => <p>Loading...</p>,
-  ssr: false
-});
 
-export default function Page(){
-  return (
-    <div>
-      <PDFGenerator></PDFGenerator>
-    </div>
-  )
+export default async function Page() {
+    const sensorsData = (await fetchRestaurants()).data;
+    return (
+        <div>
+            {
+              sensorsData.map((data, index) =>
+                <PDFGenerator sensor={data.sensor}
+                  key={index}
+                />
+                )
+            }
+        </div>
+    )
 }

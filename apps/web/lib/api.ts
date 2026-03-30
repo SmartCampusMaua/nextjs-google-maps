@@ -42,3 +42,14 @@ export async function getSensorReadings(device_id : string, type : SensorType, l
   }
   return res.json() as Promise<SensorReadings>;
 }
+
+export async function getRestaurantReport(device_id : string){
+  try {
+    const response = await fetch(`${API_URL}/reports/${device_id}`);
+    const blob = await response.blob();
+    return blob;
+
+  } catch (error) {
+    console.error("Failed to get the report PDF:", error);
+  }
+}
