@@ -3,6 +3,7 @@ import type { SensorData, SensorsResponse } from "@smartcampus/types";
 import { querySensors, queryLatestSensorReadings } from "./influx";
 import { sensorLocations, getSensorsByType, getSensorById } from "./sensors";
 import { createPDF } from "./generate_pdf";
+import { sendEmail } from "./email_sender";
 
 const energyRoutes = new Elysia({ prefix: "/energy" })
     .get(
@@ -258,5 +259,21 @@ const reportsRoutes = new Elysia({prefix: "/reports"})
       },
     }
   )
+  .get(
+    "/email/:id/",
+    async ({params, query}) => {
+      const pdfFile = (await createPDF(params.id, query.date ?? new Date()));
+      sendEmail(pdfFile.buffer);
+    },
+    {
+      params: t.Object({ id: t.String() }),
+      query : t.Object({ date: t.Optional(t.Date())}),
+      detail: {
+        summary: "Get report via email",
+        tags: ["reports"],
+      },
+    }
+  )
+
 
 export { energyRoutes, waterRoutes, restaurantRoutes, reportsRoutes };
