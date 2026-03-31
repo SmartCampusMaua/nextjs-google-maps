@@ -25,7 +25,7 @@ export const sensorLocations: SensorLocation[] = [
   },
   {
     id: "019b08df-26e7-7119-97da-523f9236db80",
-    name: "Restaurante Bloco Ginásio",
+    name: "Quiosque Boulevard 2",
     description: "",
     latitude: -23.64707650417544,
     longitude: -46.57305993118999,
@@ -34,7 +34,7 @@ export const sensorLocations: SensorLocation[] = [
   },
   {
     id: "019b08df-26e7-7f7b-a18f-b3d6c3fdf248",
-    name: "Restaurante Quiosque",
+    name: "Quiosque Boulevard 1",
     description: "",
     latitude: -23.648892753482794,
     longitude:  -46.5728712161721,
@@ -43,7 +43,7 @@ export const sensorLocations: SensorLocation[] = [
   },
   {
     id: "019b08df-26e7-7866-a0fb-1768122b8584",
-    name: "Restaurante Açaí",
+    name: "Açaí",
     description: "",
     latitude: -23.648092071563553,
     longitude: -46.574687940662365,
