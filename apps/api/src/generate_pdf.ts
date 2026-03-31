@@ -129,17 +129,17 @@ function getChart(valuesFromMonth : [{a_plus : number, day : string}], device_id
 
   // Declare the y (vertical position) scale.
   const y = d3.scaleLinear()
-    .domain([0, d3.max(valuesFromMonth, d => d.a_plus)]).nice()
+    .domain([0, d3.max(valuesFromMonth, d => d.a_plus)!]).nice()
     .range([height - marginBottom, marginTop]);
 
   // Create a bar for each letter.
   const bar = svg.append("g")
-    .attr("fill", sensorLocations.find((e) => e.id == device_id)?.displayColor)
+    .attr("fill", sensorLocations.find((e) => e.id == device_id)?.displayColor!)
     .selectAll("rect")
     .data(valuesFromMonth)
     .join("rect")
       .style("mix-blend-mode", "multiply") // Darker color when bars overlap during the transition.
-      .attr("x", d => x(d.day))
+      .attr("x", d => x(d.day)!)
       .attr("y", d => y(d.a_plus))
       .attr("height", d => y(0) - y(d.a_plus))
       .attr("width", x.bandwidth());
@@ -153,13 +153,13 @@ function getChart(valuesFromMonth : [{a_plus : number, day : string}], device_id
     .attr("transform", `translate(${marginLeft},0)`)
     .call(
       d3.axisLeft(y)
-      .tickFormat((y) => (y).toFixed()))
+        .tickFormat((y) => (y).toFixed()))
     .call(g => g.select(".domain").remove());
 
 
 
   // 4. Output the generated HTML/SVG string
   const svgOutput = svg.node();
-  return svgOutput.outerHTML;
+  return svgOutput!.outerHTML;
 
 }
