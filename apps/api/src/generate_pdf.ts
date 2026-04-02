@@ -8,7 +8,7 @@ import sharp from 'sharp';
 const energyCost = 0.35;
 
 export async function createPDF(device_id : string, date: Date) {
-  const file = Bun.file("public/comodatos_template.pdf");
+  const file = Bun.file("public/restaurants_template.pdf");
   const pdfDoc = await PDFDocument.load(await file.arrayBuffer());
   const timesRomanFont = await pdfDoc.embedFont(StandardFonts.TimesRoman);
 
