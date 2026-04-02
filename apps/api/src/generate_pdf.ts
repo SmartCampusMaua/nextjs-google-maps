@@ -8,17 +8,15 @@ import sharp from 'sharp';
 const energyCost = 0.35;
 
 export async function createPDF(device_id : string, date: Date) {
-  const pdfDoc = await PDFDocument.create();
+  const file = Bun.file("public/comodatos_template.pdf");
+  const pdfDoc = await PDFDocument.load(await file.arrayBuffer());
   const timesRomanFont = await pdfDoc.embedFont(StandardFonts.TimesRoman);
 
-  const page = pdfDoc.addPage();
-  const { width, height } = page.getSize();
   const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
-  const fontSize = 30
-  const title = 'Relatório de Comodatos';
-  const textWidth = font.widthOfTextAtSize(title, fontSize);
-  
+  const form = pdfDoc.getForm();
 
+  const page = pdfDoc.getPage(0);
+  const { width, height } = page.getSize();
   const sensor = sensorLocations.find((e) => e.id == device_id);
   
 
@@ -35,7 +33,6 @@ export async function createPDF(device_id : string, date: Date) {
     style: "currency",
     currency: "BRL"
   }).format(monthEnergy * energyCost);
-  page.moveDown(30);
 
   const dateOptions : Intl.DateTimeFormatOptions= {
     year: 'numeric',
@@ -45,31 +42,7 @@ export async function createPDF(device_id : string, date: Date) {
     minute: '2-digit',
     second: '2-digit',    
   };
-  
-  const restaurantName = sensor?.name ?? "";
-  page.drawText(`${title}`,{
-    x: (width - textWidth) / 2,
-    y: height - 4 * fontSize,
-    size: fontSize * 1.2,
-    font: timesRomanFont,
-  });
-  page.moveDown(10);
-  page.drawText(`\n
-  Comodato: ${restaurantName}\n
-  Data Início: ${new Date(beginTime).toLocaleString("pt-BR", dateOptions)}\n
-  Data Término: ${new Date(endTime).toLocaleString("pt-BR", dateOptions)}\n
-  Leitura Anterior: ${beginOfMonthEnergy} kWh\n
-  Leitura Atual: ${endOfMonthEnergy} kWh\n
-  Consumo: ${monthEnergy.toFixed(2)} kWh\n
-  Tarifa por kWh: ${new Intl.NumberFormat("pt-BR", {style: "currency", currency:"BRL"}).format(energyCost)}\n
-  Total a Pagar: ${totalCost}
-`, {
-    x: 0 ,
-    y: height - 4 * fontSize,
-    size: fontSize,
-    font: timesRomanFont,
-  });
- 
+
   const chartSVG = getChart(valuesFromMonth, device_id);  
 
   const png = await sharp(Buffer.from(chartSVG))
@@ -77,13 +50,19 @@ export async function createPDF(device_id : string, date: Date) {
     .toBuffer();
   const pngImage = await pdfDoc.embedPng(png);
   // pdfImage.scale()
-  const pngDims = pngImage.scale(0.5)
-  page.drawImage(pngImage,{
-    x: (width - pngDims.width) / 2,
-    y: (pngDims.height) / 2,
-    height : pngDims.height,
-    width  : pngDims.width
-  });
+  const pngDims = pngImage.scale(0.5);
+  
+  const restaurantName = sensor?.name ?? "";
+  form.getTextField("comodato").setText(restaurantName);
+  form.getTextField("data_inicio").setText(new Date(beginTime).toLocaleString("pt-BR", dateOptions));
+  form.getTextField("data_fim").setText(new Date(endTime).toLocaleString("pt-BR", dateOptions));
+  form.getTextField("leitura_anterior").setText(`${beginOfMonthEnergy} kWh`);
+  form.getTextField("leitura_atual").setText(`${endOfMonthEnergy} kWh`);
+  form.getTextField("consumo").setText(`${monthEnergy.toFixed(2)} kWh`);
+  form.getTextField("tarifa").setText(new Intl.NumberFormat("pt-BR", {style: "currency", currency:"BRL"}).format(energyCost));
+  form.getTextField("total").setText(totalCost);
+  form.getTextField("chart").setImage(pngImage);
+  form.flatten();
   const pdfBytes = await pdfDoc.save();
   return pdfBytes;
 }
