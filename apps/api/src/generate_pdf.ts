@@ -53,6 +53,7 @@ export async function createPDF(device_id : string, date: Date) {
   const pngDims = pngImage.scale(0.5);
   
   const restaurantName = sensor?.name ?? "";
+  form.getTextField("gerado").setText(new Date().toLocaleString("pt-BR", dateOptions));
   form.getTextField("comodato").setText(restaurantName);
   form.getTextField("data_inicio").setText(new Date(beginTime).toLocaleString("pt-BR", dateOptions));
   form.getTextField("data_fim").setText(new Date(endTime).toLocaleString("pt-BR", dateOptions));
