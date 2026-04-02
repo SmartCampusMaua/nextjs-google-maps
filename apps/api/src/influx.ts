@@ -140,7 +140,10 @@ export async function queryRestaurantsConsumptionFromMonth(device_id : string, d
   GROUP BY device_id
   )
 `;
-  const days = [...Array(30).keys()];
+  let days = [];
+  for(let day = 2; day <= new Date(date.getFullYear(),date.getMonth() + 1, 0).getDate(); day++){
+    days.push(day)
+  }
   for(let day in days){
     query += ` UNION ALL
     (
