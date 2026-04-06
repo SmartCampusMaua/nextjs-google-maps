@@ -43,9 +43,12 @@ export async function getSensorReadings(device_id : string, type : SensorType, l
   return res.json() as Promise<SensorReadings>;
 }
 
-export async function getRestaurantReport(device_id : string){
+export async function getRestaurantReport(device_id : string, date : Date = new Date()){
   try {
-    const response = await fetch(`${API_URL}/reports/${device_id}`);
+    const query = new URLSearchParams({
+      date: `${date}`
+    }).toString();
+    const response = await fetch(`${API_URL}/reports/${device_id}?${query}`);
     const blob = await response.blob();
     return blob;
 
