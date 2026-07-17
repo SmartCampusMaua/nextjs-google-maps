@@ -43,7 +43,7 @@ export async function createPDF(device_id : string, date: Date) {
     second: '2-digit',    
   };
 
-  const chartSVG = getChart(valuesFromMonth, device_id);  
+  const chartSVG = getChart(valuesFromMonth as unknown as {a_plus : number, day : string}[], device_id);
 
   const png = await sharp(Buffer.from(chartSVG))
     .png()
@@ -69,7 +69,7 @@ export async function createPDF(device_id : string, date: Date) {
 }
 
 
-function getChart(valuesFromMonth : [{a_plus : number, day : string}], device_id : string){
+function getChart(valuesFromMonth : {a_plus : number, day : string}[], device_id : string){
   // Declare the chart dimensions and margins.
   const dom = new JSDOM('<!DOCTYPE html><html><body><div id="chart"></div></body></html>');
   const window = dom.window;
@@ -133,7 +133,7 @@ function getChart(valuesFromMonth : [{a_plus : number, day : string}], device_id
     .attr("transform", `translate(${marginLeft},0)`)
     .call(
       d3.axisLeft(y)
-        .tickFormat((y) => (y).toFixed()))
+        .tickFormat((y) => Number(y).toFixed()))
     .call(g => g.select(".domain").remove());
 
 
