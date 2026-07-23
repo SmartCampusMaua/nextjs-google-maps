@@ -1,11 +1,11 @@
 import type { NextConfig } from "next";
+import path from "path";
 
 const nextConfig: NextConfig = {
   transpilePackages: ["@smartcampus/types"],
+  allowedDevOrigins: ["10.2.132.34"],
+  output: "standalone",
+  outputFileTracingRoot: path.join(__dirname, "../.."),
 };
-
-module.exports = {
-  allowedDevOrigins: ["10.2.132.34"]
-}
 
 export default nextConfig;

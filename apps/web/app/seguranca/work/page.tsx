@@ -52,7 +52,7 @@ export default function WorkPage() {
       setKpiMes(kpi);
     } catch (e) {
       console.error(e);
-      setErro("Não foi possível carregar do servidor. A API (porta 3001) está no ar?");
+      setErro("Não foi possível carregar do servidor. A API (porta 3300) está no ar?");
     }
   }, [ano, mes]);
 

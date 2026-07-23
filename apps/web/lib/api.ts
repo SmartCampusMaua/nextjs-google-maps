@@ -1,6 +1,6 @@
 import type { SensorReading, SensorReadings, SensorsResponse, SensorType } from "@smartcampus/types";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3300";
 
 export async function fetchEnergySensors(): Promise<SensorsResponse> {
   const res = await fetch(`${API_URL}/energy/sensors`, {

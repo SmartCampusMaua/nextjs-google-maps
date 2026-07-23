@@ -3,6 +3,8 @@ import { SensorMap } from "@/components/maps/SensorMap";
 import { fetchEnergySensors, fetchRestaurants, fetchWaterSensors } from "@/lib/api";
 import type { SensorData } from "@smartcampus/types";
 
+export const dynamic = "force-dynamic";
+
 export default async function MapsPage() {
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? "";
 

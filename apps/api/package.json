@@ -4,9 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "bun run --watch src/index.ts",
+    "dev": "dotenv -e ../../.env -- bun run --watch src/index.ts",
     "build": "bun build src/index.ts --outdir dist --target bun",
-    "start": "bun run dist/index.js",
+    "start": "dotenv -e ../../.env -- bun run dist/index.js",
     "type-check": "tsc --noEmit",
     "lint": "tsc --noEmit"
   },

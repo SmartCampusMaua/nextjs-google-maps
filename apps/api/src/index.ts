@@ -4,7 +4,7 @@ import { cipaRoutes } from "./cipa_routes";
 import {openapi} from "@elysiajs/openapi";
 import {cors} from "@elysiajs/cors";
 
-const port = Number(process.env.PORT ?? 3001);
+const port = Number(process.env.API_PORT ?? 3300);
 
 const app = new Elysia()
     .onError(({ code

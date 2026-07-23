@@ -6,7 +6,7 @@ Três peças rodam juntas:
 | Peça | Porta | O que é |
 |------|-------|---------|
 | **web** (Next.js) | 3000 | O site: `/cipa`, painéis de TV, relatórios |
-| **api** (Bun + ElysiaJS) | 3001 | Endpoints `/cipa/...` e sensores |
+| **api** (Bun + ElysiaJS) | 3300 | Endpoints `/cipa/...` e sensores |
 | **PostgreSQL** | 5432 | Banco de dados (nativo ou Docker) |
 
 ## 1. Requisitos na máquina de deploy
@@ -25,7 +25,8 @@ bun install        # na RAIZ do repositório (workspace resolve web+api+types)
 
 ## 3. Configurar
 
-**`apps/api/.env`** (copie de `.env.example`):
+**`.env` na raiz do repositório** (copie de `.env.example` — um único arquivo
+compartilhado por `apps/web` e `apps/api`, cada app carrega via `dotenv-cli`):
 
 ```
 DATABASE_URL=postgres://smartcampus:smartcampus@localhost:5432/smartcampus
@@ -34,12 +35,11 @@ DATABASE_URL=postgres://smartcampus:smartcampus@localhost:5432/smartcampus
 
 **⚠️ O ponto que mais derruba deploy — `NEXT_PUBLIC_API_URL`:**
 as páginas chamam a API **a partir do navegador de quem acessa** (TVs, outros
-PCs). `localhost:3001` só funciona no próprio servidor. Antes do build do site,
-defina o IP real do servidor:
+PCs). `localhost:3300` só funciona no próprio servidor. Antes do build do site,
+defina o IP real do servidor no `.env` da raiz:
 
 ```bash
-# apps/web/.env.production  (crie este arquivo)
-NEXT_PUBLIC_API_URL=http://IP_DO_SERVIDOR:3001
+NEXT_PUBLIC_API_URL=http://IP_DO_SERVIDOR:3300
 ```
 
 (Esse valor é "gravado" no site **na hora do build** — mudou o IP, refaça o build.)
@@ -55,7 +55,7 @@ cd ../web  && bun run build      # gera .next/ otimizado
 
 ```bash
 # API (terminal 1)
-cd apps/api && bun run start     # roda dist/index.js na :3001
+cd apps/api && bun run start     # roda dist/index.js na :3300
 
 # Site (terminal 2)
 cd apps/web && bun run start     # next start na :3000
@@ -98,8 +98,8 @@ sudo systemctl enable --now cipa-api cipa-web
 
 ## 7. Firewall / acesso na intranet
 
-Libere as portas 3000 (site) e, se as TVs acessarem direto, 3001 (API):
-`sudo ufw allow 3000/tcp && sudo ufw allow 3001/tcp` (se o ufw estiver ativo).
+Libere as portas 3000 (site) e, se as TVs acessarem direto, 3300 (API):
+`sudo ufw allow 3000/tcp && sudo ufw allow 3300/tcp` (se o ufw estiver ativo).
 
 ## 8. Backup do banco
 

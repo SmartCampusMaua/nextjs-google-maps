@@ -54,7 +54,7 @@ nextjs-google-maps/
 
 - **`apps/web`** é a parte visual (front-end). Rotas atuais: `maps`, `reports` e a
   nossa nova `cipa`.
-- **`apps/api`** é o back-end. Ele expõe dados em `http://localhost:3001` e o site
+- **`apps/api`** é o back-end. Ele expõe dados em `http://localhost:3300` e o site
   consome esses dados.
 - **Runtime:** o projeto roda com **Bun** (um substituto do Node.js). Pacotes do
   site: Next, React, Tailwind v4, shadcn/ui, Radix, lucide-react (ícones).
@@ -210,7 +210,7 @@ Como as páginas (Server Components) rodam no servidor, elas podem buscar dados
 `apps/web/lib/api.ts`. Exemplo real:
 
 ```ts
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3300";
 
 export async function fetchRestaurants(): Promise<SensorsResponse> {
   const res = await fetch(`${API_URL}/restaurant/sensors`, {

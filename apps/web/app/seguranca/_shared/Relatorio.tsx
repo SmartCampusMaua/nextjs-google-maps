@@ -40,7 +40,7 @@ export function Relatorio({
       setPainel(await obterPainel(sistema, ano, mes));
     } catch (e) {
       console.error(e);
-      setErro("Não foi possível carregar os dados. A API (porta 3001) está no ar?");
+      setErro("Não foi possível carregar os dados. A API (porta 3300) está no ar?");
     }
   }, [sistema, ano, mes]);
 
