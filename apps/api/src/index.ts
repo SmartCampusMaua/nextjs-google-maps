@@ -1,5 +1,6 @@
 import { Elysia } from "elysia";
 import { energyRoutes, reportsRoutes, restaurantRoutes, waterRoutes } from "./routes";
+import { cipaRoutes } from "./cipa_routes";
 import {openapi} from "@elysiajs/openapi";
 import {cors} from "@elysiajs/cors";
 
@@ -21,6 +22,7 @@ const app = new Elysia()
   .use(waterRoutes)
   .use(restaurantRoutes)
   .use(reportsRoutes)
+  .use(cipaRoutes)
   .listen(port);
 
 console.log(
