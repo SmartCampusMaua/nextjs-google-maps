@@ -41,6 +41,10 @@ COPY --from=installer /app/apps/web/.next/standalone ./
 COPY --from=installer /app/apps/web/.next/static ./apps/web/.next/static
 COPY --from=installer /app/apps/web/public ./apps/web/public
 
+# The fetch cache (used by `revalidate: 30` in lib/api.ts) needs a writable
+# .next/cache — standalone output doesn't include it, so create it here.
+RUN mkdir -p apps/web/.next/cache && chown -R nextjs:nodejs apps/web/.next
+
 USER nextjs
 EXPOSE 3000
 ENV PORT=3000

@@ -1,20 +1,40 @@
-# SmartCampus app stack (web + api) + telemetry Postgres.
+# SmartCampus app stack — fully self-contained: web + api + their own
+# Postgres, plus a separate telemetry Postgres. Nothing outside this file
+# needs to be running first.
 #
-# The app's own PostgreSQL (CIPA data) lives in the docker-compose.yml at the
-# repo root — start that first: `docker compose up -d` from the repo root.
-# This stack reaches it via host.docker.internal (mapped below for Linux
-# compatibility; Docker Desktop provides it automatically on Mac/Windows).
+# Everything is built locally from apps/api/Dockerfile and apps/web/Dockerfile
+# (context: repo root, for the pnpm/turbo workspace deps) — this never pulls
+# from Docker Hub. Docker Hub is only used by CI to publish images for other
+# hosts to pull; local `docker compose up` always builds from source.
 #
 # Run from THIS directory, passing the root .env explicitly so `${...}`
 # substitution below (used for web's build args) resolves:
 #
-#   docker compose --env-file ../../.env up -d --build
-#
 # Subir:    docker compose --env-file ../../.env up -d --build
-# Parar:    docker compose down
+# Parar:    docker compose down          (dados do app ficam no volume)
+# Zerar:    docker compose down -v       (apaga os volumes — cuidado!)
 # Logs:     docker compose logs -f web api
 
 services:
+  app-postgres:
+    image: postgres:18
+    container_name: smartcampus-app-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: smartcampus
+      POSTGRES_PASSWORD: smartcampus
+      POSTGRES_DB: smartcampus
+    ports:
+      - "5434:5432"
+    volumes:
+      # Na imagem postgres:18 o diretório de dados vive em /var/lib/postgresql
+      - app_pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U smartcampus -d smartcampus"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
   postgres:
     image: postgres:18.1-alpine3.23
     container_name: telemetry-postgres
@@ -33,20 +53,20 @@ services:
     build:
       context: ../..
       dockerfile: apps/api/Dockerfile
-    image: SmartrCampusMaua/api:local
+    image: smartcampusmaua/api:local
     container_name: smartcampus-api
     restart: unless-stopped
     env_file:
       - ../../.env
     environment:
       # Overrides the .env default (localhost:5432, meant for native/host
-      # dev) so the containerized API reaches the host-published Postgres
-      # from docker-compose.yml at the repo root.
-      DATABASE_URL: postgres://smartcampus:smartcampus@host.docker.internal:5432/smartcampus
+      # dev) with the in-network service name of app-postgres above.
+      DATABASE_URL: postgres://smartcampus:smartcampus@app-postgres:5432/smartcampus
     ports:
       - "3300:3300"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    depends_on:
+      app-postgres:
+        condition: service_healthy
 
   web:
     build:
@@ -55,16 +75,23 @@ services:
       args:
         NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: ${NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}
         NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
-    image: SmartrCampusMaua/web:local
+    image: smartcampusmaua/web:local
     container_name: smartcampus-web
     restart: unless-stopped
     env_file:
       - ../../.env
+    environment:
+      # Server Components run inside this container, so they must reach the
+      # api service by its Docker-internal name, not NEXT_PUBLIC_API_URL
+      # (which is baked into the browser bundle and points at the host).
+      API_INTERNAL_URL: http://api:3300
     ports:
       - "3000:3000"
     depends_on:
       - api
 
 volumes:
+  app_pgdata:
+    driver: local
   postgres_data:
     driver: local

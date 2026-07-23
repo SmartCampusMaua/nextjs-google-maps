@@ -1,6 +1,15 @@
 import type { SensorReading, SensorReadings, SensorsResponse, SensorType } from "@smartcampus/types";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3300";
+// This module is used both from Server Components (fetch runs inside the
+// web container/process) and Client Components (fetch runs in the browser).
+// Those need different base URLs when containerized: the browser needs the
+// externally published address (NEXT_PUBLIC_API_URL), while server-side code
+// needs the api service's Docker-internal address (API_INTERNAL_URL). Native
+// dev (no Docker) doesn't need API_INTERNAL_URL — both sides share localhost.
+const API_URL =
+  (typeof window === "undefined" && process.env.API_INTERNAL_URL) ||
+  process.env.NEXT_PUBLIC_API_URL ||
+  "http://localhost:3300";
 
 export async function fetchEnergySensors(): Promise<SensorsResponse> {
   const res = await fetch(`${API_URL}/energy/sensors`, {
