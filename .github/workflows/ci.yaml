@@ -16,10 +16,10 @@ jobs:
         service:
           - name: api
             dockerfile: apps/api/Dockerfile
-            image: SmartrCampusMaua/api
+            image: smartcampusmaua/api
           - name: web
             dockerfile: apps/web/Dockerfile
-            image: SmartrCampusMaua/web
+            image: smartcampusmaua/web
 
     steps:
       - uses: actions/checkout@v4
